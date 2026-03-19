@@ -31,6 +31,8 @@ type BaseConf struct {
 	ComWechatCorpID         string `json:"com_wechat_corp_id"`
 	ComWechatSecret         string `json:"com_wechat_secret"`
 	ComWechatAgentID        string `json:"com_wechat_agent_id"`
+	AiBotBotID              string `json:"aibot_bot_id"`
+	AiBotSecret             string `json:"aibot_secret"`
 	WechatAppID             string `json:"wechat_app_id"`
 	WechatAppSecret         string `json:"wechat_app_secret"`
 	WechatToken             string `json:"wechat_token"`
@@ -116,6 +118,8 @@ func InitConf() {
 	flag.StringVar(&BaseConfInfo.ComWechatCorpID, "com_wechat_corp_id", "", "ComWechat corp id")
 	flag.StringVar(&BaseConfInfo.ComWechatSecret, "com_wechat_secret", "", "ComWechat secret")
 	flag.StringVar(&BaseConfInfo.ComWechatAgentID, "com_wechat_agent_id", "", "ComWechat agent id")
+	flag.StringVar(&BaseConfInfo.AiBotBotID, "aibot_bot_id", "", "AiBot BotID (企业微信智能机器人长连接)")
+	flag.StringVar(&BaseConfInfo.AiBotSecret, "aibot_secret", "", "AiBot Secret (企业微信智能机器人长连接)")
 	flag.StringVar(&BaseConfInfo.WechatAppID, "wechat_app_id", "", "Wechat app id")
 	flag.StringVar(&BaseConfInfo.WechatAppSecret, "wechat_app_secret", "", "Wechat app secret")
 	flag.StringVar(&BaseConfInfo.WechatEncodingAESKey, "wechat_encoding_aes_key", "", "Wechat encoding aes key")
@@ -263,6 +267,14 @@ func InitConf() {
 
 	if os.Getenv("COM_WECHAT_AGENT_ID") != "" {
 		BaseConfInfo.ComWechatAgentID = os.Getenv("COM_WECHAT_AGENT_ID")
+	}
+
+	if os.Getenv("AIBOT_BOT_ID") != "" {
+		BaseConfInfo.AiBotBotID = os.Getenv("AIBOT_BOT_ID")
+	}
+
+	if os.Getenv("AIBOT_SECRET") != "" {
+		BaseConfInfo.AiBotSecret = os.Getenv("AIBOT_SECRET")
 	}
 
 	if os.Getenv("QQ_APP_ID") != "" {
@@ -546,6 +558,8 @@ func logConf(allowedUserIds, allowedGroupIds string) {
 	logger.Info("CONF", "ImagePath", BaseConfInfo.ImagePath)
 	logger.Info("CONF", "IsStreaming", BaseConfInfo.IsStreaming)
 	logger.Info("CONF", "SendMcpMediaToLLM", BaseConfInfo.SendMcpMediaToLLM)
+	logger.Info("CONF", "AiBotBotID", BaseConfInfo.AiBotBotID)
+	logger.Info("CONF", "AiBotSecret", BaseConfInfo.AiBotSecret)
 
 	logger.Info("AUDIO_CONF", "AudioAppID", AudioConfInfo.VolAudioAppID)
 	logger.Info("AUDIO_CONF", "AudioToken", AudioConfInfo.VolAudioToken)

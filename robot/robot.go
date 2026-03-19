@@ -268,7 +268,14 @@ func (r *RobotInfo) GetChatIdAndMsgIdAndUserID() (string, string, string) {
 		if comWechatRobot.VoiceMsg != nil {
 			msgId = comWechatRobot.VoiceMsg.MsgID
 		}
-
+	case *AiBotRobot:
+		ab := r.Robot.(*AiBotRobot)
+		chatId = ab.ChatID
+		if chatId == "" {
+			chatId = ab.UserID
+		}
+		userId = ab.UserID
+		msgId = ab.MsgID
 	case *QQRobot:
 		q := r.Robot.(*QQRobot)
 		if q.C2CMessage != nil {
@@ -440,6 +447,14 @@ func (r *RobotInfo) SendMsg(chatId string, msgContent string, replyToMessageID s
 		if err != nil {
 			logger.WarnCtx(r.Ctx, "send message fail", "err", err)
 		}
+	case *AiBotRobot:
+		ab := r.Robot.(*AiBotRobot)
+		// 始终走流式路径，复用 handleMsgCallback 里已建立的 StreamID。
+		// respondMsg 不能用，因为 req_id 的回复窗口已被占位符占用，
+		// 后续只能用相同 stream.id 刷新消息。
+		if err := ab.conn.RespondStream(ab.ReqID, ab.StreamID, msgContent, true); err != nil {
+			logger.WarnCtx(r.Ctx, "aibot send message fail", "err", err)
+		}
 	case *QQRobot:
 		q := r.Robot.(*QQRobot)
 		qqMsg := &dto.MessageToCreate{
@@ -581,6 +596,12 @@ func StartRobot() {
 	if conf.BaseConfInfo.ComWechatSecret != "" && conf.BaseConfInfo.ComWechatAgentID != "" && conf.BaseConfInfo.ComWechatEncodingAESKey != "" {
 		go func() {
 			StartComWechatRobot(ctx)
+		}()
+	}
+
+	if conf.BaseConfInfo.AiBotBotID != "" && conf.BaseConfInfo.AiBotSecret != "" {
+		go func() {
+			StartAiBotRobot(ctx)
 		}()
 	}
 
